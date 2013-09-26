@@ -1,0 +1,108 @@
+body {
+    padding:0;
+    margin:0;
+    font-family: Tahoma, 'Lucida Grande', sans-serif;
+}
+
+#header {
+    background: url('../images/background.png');
+    height: 174px;
+}
+
+#content {
+    padding:50px 50px;
+}
+
+#content-left {
+    float: left;
+    width: 300px;
+    position: absolute;
+}
+
+#content-right {
+    float: left;
+    margin-left: 350px;
+    position: absolute;
+}
+
+#footnote {
+    margin-bottom: 30px;
+}
+
+#logo {
+    float: left;
+    margin-top: 40px;
+    margin-left: 50px;
+}
+
+#menu {
+    position: absolute;
+    left: 10px;
+    top: 123px;
+}
+
+#menu ul li{
+    display: inline;
+    width: 100%;
+    margin-right: 40px;
+}
+
+#menu ul li a{
+    color: white;
+    text-decoration: none;
+    padding: 7px;
+}
+
+#menu a:hover {
+    background: none repeat scroll 0 0 #DCEFFA;
+    border-radius: 10px 10px 10px 10px;
+    color: #000000;
+}
+
+#logo a {
+    color: #222;
+    text-decoration: none;
+}
+
+#logo hr {
+    color: #eee;
+}
+
+#logo a:hover {
+    color: #555;
+}
+
+#rule_desc {
+    background: none repeat scroll 0 0;
+    margin-left: 20px;
+}
+
+#code {
+    width: 80%;
+    overflow: auto;
+}
+
+.help {
+    padding: 10px;
+}
+
+a {
+    color: #0066CC;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+h1 {
+    font-size: 25px;
+    line-height: 0;
+}
+
+h2 {
+    font-size: 20px;
+    line-height: 0;
+}
+h3 {
+    line-height: 0;
+}
