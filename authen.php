@@ -224,94 +224,124 @@ if ($action == '') {
         }
     } elseif ($action == 'insertdata') {
 		//echo $username_s." ".$slipno1." ".$teamcode1." ".$price1." ".$timestamp;
-		$mindot = 2;
-		$stepi_qry = $login->qry("SELECT step2, step1 FROM user_account WHERE username = '?'", $username_s);
-		$stepi_fet = mysql_fetch_array($stepi_qry);
-		$stepi_result = $stepi_fet['step2'];
-		$stepi_result1 = $stepi_fet['step1'];
-		if ($stepi_result == 'yes') {
-			$mindot = 1;
-		}
-		if ($stepi_result1 == 'yes') {
-			$mindot = 0;
-		}
-		if (date('H') < 12) {
-			$today = date("Y")."-".date("m")."-".(date("d")-1);
-			$tomorrow = date("Y")."-".date("m")."-".date("d");
-		} else {
-			$today = date("Y")."-".date("m")."-".date("d");
-			$tomorrow = date("Y")."-".date("m")."-".(date("d")+1);
-		}
-		$sum_qry = $login->qry("SELECT SUM(price) FROM slip_insert WHERE username = '?' AND timestamp BETWEEN '?' AND '?';", $username_s, $today." 12:00:01", $tomorrow." 12:00:00");
-		$sum_fet = mysql_fetch_array($sum_qry);
-		$cur_price = $sum_fet[0];
-		//echo $cur_price."<br/>";
-		$sum_price = $price1 + $price2 + $price3 + $price4;
-		$chk_price = $sum_price + $cur_price;
-		//echo $chk_price;
-		//echo $sum_price;
-		$limit_qry = $login->qry("SELECT limit_price FROM user_account WHERE username = '?'", $username_s);
+		$limit_qry = $login->qry("SELECT * FROM limit_time WHERE limit_id = 1");
 		$limit_fet = mysql_fetch_array($limit_qry);
-		$limit_price = $limit_fet['limit_price'];
-		//echo $limit_price;
-		if ($limit_price == 0 || $chk_price <= $limit_price) {
-			if ($slipno1 != "" && $teamcode1 != "" && $price1 != "") {
-				if (substr_count($teamcode1,".") < $mindot || substr_count($teamcode1,".") > 9) {
-									echo "&#3619;&#3634;&#3618;&#3585;&#3634;&#3619;&#3607;&#3637;&#3656; 1 &#3592;&#3635;&#3609;&#3623;&#3609;&#3607;&#3637;&#3617;&#3612;&#3636;&#3604;&#3614;&#3621;&#3634;&#3604;<br/>";
-							} else {
-				if ($login->insertData($username_s, $slipno1, $teamcode1, $price1, $timestamp)) {
-					echo "รายการที่ 1 บันทึกเสร็จเรียบร้อย<br/>";
-				} else {
-					echo "รายการที่ 1 บันทึกล้มเหลว กรุณาลองใหม่อีกครั้ง<br/>";
-					printfooter();
-				}
-							}
+		
+		$limit_from = (int) substr($limit_fet["limit_from"], 0, 2);
+		$limit_to = (int) substr($limit_fet["limit_to"], 0, 2);
+		$cur_hour = (int) date('H');
+		$insertable = false;
+		
+		echo $limit_from." ".$limit_to." ".$cur_hour."<br/>";
+		
+		if ($limit_from < $limit_to) {
+			if ($cur_hour < $limit_to && $cur_hour >= $limit_from) {
+				$insertable = false;
+			} else {
+				$insertable = true;
 			}
-			if ($slipno2 != "" && $teamcode2 != "" && $price2 != "") {
-							if (substr_count($teamcode2,".") < $mindot || substr_count($teamcode2,".") > 9) {
-									echo "&#3619;&#3634;&#3618;&#3585;&#3634;&#3619;&#3607;&#3637;&#3656; 2 &#3592;&#3635;&#3609;&#3623;&#3609;&#3607;&#3637;&#3617;&#3612;&#3636;&#3604;&#3614;&#3621;&#3634;&#3604;<br/>";
-							} else {
-				if ($login->insertData($username_s, $slipno2, $teamcode2, $price2, $timestamp)) {
-					echo "รายการที่ 2 บันทึกเสร็จเรียบร้อย<br/>";
-				} else {
-					echo "รายการที่ 2 บันทึกล้มเหลว กรุณาลองใหม่อีกครั้ง<br/>";
-					printfooter();
-				}
-							}
+		} else if ($limit_from > $limit_to) {
+			if ($cur_hour < $limit_to || $cur_hour >= $limit_from) {
+				$insertable = false;
+			} else {
+				$insertable = true;
 			}
-			if ($slipno3 != "" && $teamcode3 != "" && $price3 != "") {
-							if (substr_count($teamcode3,".") < $mindot || substr_count($teamcode3,".") > 9) {
-									echo "&#3619;&#3634;&#3618;&#3585;&#3634;&#3619;&#3607;&#3637;&#3656; 1 &#3592;&#3635;&#3609;&#3623;&#3609;&#3607;&#3637;&#3617;&#3612;&#3636;&#3604;&#3614;&#3621;&#3634;&#3604;<br/>";
-							} else {
-				if ($login->insertData($username_s, $slipno3, $teamcode3, $price3, $timestamp)) {
-					echo "รายการที่ 3 บันทึกเสร็จเรียบร้อย<br/>";
-				} else {
-					echo "รายการที่ 3 บันทึกล้มเหลว กรุณาลองใหม่อีกครั้ง<br/>";
-					printfooter();
-				}
-							}
+		} else if ($limit_from == $limit_to) {
+			$insertable = true;
+		}
+		if ($insertable) {
+			$mindot = 2;
+			$stepi_qry = $login->qry("SELECT step2, step1 FROM user_account WHERE username = '?'", $username_s);
+			$stepi_fet = mysql_fetch_array($stepi_qry);
+			$stepi_result = $stepi_fet['step2'];
+			$stepi_result1 = $stepi_fet['step1'];
+			if ($stepi_result == 'yes') {
+				$mindot = 1;
 			}
-			if ($slipno4 != "" && $teamcode4 != "" && $price4 != "") {
-							if (substr_count($teamcode4,".") < $mindot || substr_count($teamcode4,".") > 9) {
-									echo "&#3619;&#3634;&#3618;&#3585;&#3634;&#3619;&#3607;&#3637;&#3656; 4 &#3592;&#3635;&#3609;&#3623;&#3609;&#3607;&#3637;&#3617;&#3612;&#3636;&#3604;&#3614;&#3621;&#3634;&#3604;<br/>";
-							} else {
-				if ($login->insertData($username_s, $slipno4, $teamcode4, $price4, $timestamp)) {
-					echo "รายการที่ 4 บันทึกเสร็จเรียบร้อย<br/>";
-				} else {
-					echo "รายการที่ 4 บันทึกล้มเหลว กรุณาลองใหม่อีกครั้ง<br/>";
-					printfooter();
-				}
-							}
+			if ($stepi_result1 == 'yes') {
+				$mindot = 0;
 			}
+			if (date('H') < 12) {
+				$today = date("Y")."-".date("m")."-".(date("d")-1);
+				$tomorrow = date("Y")."-".date("m")."-".date("d");
+			} else {
+				$today = date("Y")."-".date("m")."-".date("d");
+				$tomorrow = date("Y")."-".date("m")."-".(date("d")+1);
+			}
+			$sum_qry = $login->qry("SELECT SUM(price) FROM slip_insert WHERE username = '?' AND timestamp BETWEEN '?' AND '?';", $username_s, $today." 12:00:01", $tomorrow." 12:00:00");
+			$sum_fet = mysql_fetch_array($sum_qry);
+			$cur_price = $sum_fet[0];
+			//echo $cur_price."<br/>";
+			$sum_price = $price1 + $price2 + $price3 + $price4;
+			$chk_price = $sum_price + $cur_price;
+			//echo $chk_price;
+			//echo $sum_price;
+			$limit_qry = $login->qry("SELECT limit_price FROM user_account WHERE username = '?'", $username_s);
+			$limit_fet = mysql_fetch_array($limit_qry);
+			$limit_price = $limit_fet['limit_price'];
+			//echo $limit_price;
+			if ($limit_price == 0 || $chk_price <= $limit_price) {
+				if ($slipno1 != "" && $teamcode1 != "" && $price1 != "") {
+					if (substr_count($teamcode1,".") < $mindot || substr_count($teamcode1,".") > 9) {
+										echo "&#3619;&#3634;&#3618;&#3585;&#3634;&#3619;&#3607;&#3637;&#3656; 1 &#3592;&#3635;&#3609;&#3623;&#3609;&#3607;&#3637;&#3617;&#3612;&#3636;&#3604;&#3614;&#3621;&#3634;&#3604;<br/>";
+								} else {
+					if ($login->insertData($username_s, $slipno1, $teamcode1, $price1, $timestamp)) {
+						echo "รายการที่ 1 บันทึกเสร็จเรียบร้อย<br/>";
+					} else {
+						echo "รายการที่ 1 บันทึกล้มเหลว กรุณาลองใหม่อีกครั้ง<br/>";
+						printfooter();
+					}
+								}
+				}
+				if ($slipno2 != "" && $teamcode2 != "" && $price2 != "") {
+								if (substr_count($teamcode2,".") < $mindot || substr_count($teamcode2,".") > 9) {
+										echo "&#3619;&#3634;&#3618;&#3585;&#3634;&#3619;&#3607;&#3637;&#3656; 2 &#3592;&#3635;&#3609;&#3623;&#3609;&#3607;&#3637;&#3617;&#3612;&#3636;&#3604;&#3614;&#3621;&#3634;&#3604;<br/>";
+								} else {
+					if ($login->insertData($username_s, $slipno2, $teamcode2, $price2, $timestamp)) {
+						echo "รายการที่ 2 บันทึกเสร็จเรียบร้อย<br/>";
+					} else {
+						echo "รายการที่ 2 บันทึกล้มเหลว กรุณาลองใหม่อีกครั้ง<br/>";
+						printfooter();
+					}
+								}
+				}
+				if ($slipno3 != "" && $teamcode3 != "" && $price3 != "") {
+								if (substr_count($teamcode3,".") < $mindot || substr_count($teamcode3,".") > 9) {
+										echo "&#3619;&#3634;&#3618;&#3585;&#3634;&#3619;&#3607;&#3637;&#3656; 1 &#3592;&#3635;&#3609;&#3623;&#3609;&#3607;&#3637;&#3617;&#3612;&#3636;&#3604;&#3614;&#3621;&#3634;&#3604;<br/>";
+								} else {
+					if ($login->insertData($username_s, $slipno3, $teamcode3, $price3, $timestamp)) {
+						echo "รายการที่ 3 บันทึกเสร็จเรียบร้อย<br/>";
+					} else {
+						echo "รายการที่ 3 บันทึกล้มเหลว กรุณาลองใหม่อีกครั้ง<br/>";
+						printfooter();
+					}
+								}
+				}
+				if ($slipno4 != "" && $teamcode4 != "" && $price4 != "") {
+								if (substr_count($teamcode4,".") < $mindot || substr_count($teamcode4,".") > 9) {
+										echo "&#3619;&#3634;&#3618;&#3585;&#3634;&#3619;&#3607;&#3637;&#3656; 4 &#3592;&#3635;&#3609;&#3623;&#3609;&#3607;&#3637;&#3617;&#3612;&#3636;&#3604;&#3614;&#3621;&#3634;&#3604;<br/>";
+								} else {
+					if ($login->insertData($username_s, $slipno4, $teamcode4, $price4, $timestamp)) {
+						echo "รายการที่ 4 บันทึกเสร็จเรียบร้อย<br/>";
+					} else {
+						echo "รายการที่ 4 บันทึกล้มเหลว กรุณาลองใหม่อีกครั้ง<br/>";
+						printfooter();
+					}
+								}
+				}
+			} else {
+				echo "คุณแทงเกินวงเงินที่กำหนด<br/>";
+				printfooter();
+			}
+			echo "บันทึกข้อมูลเรียบร้อย<br/>";
+			echo '<a href="index.php">บันทึกข้อมูลเพิ่มอีก</a>';
+			echo '</div>';
+			include 'footer.php';
+			exit();
 		} else {
-			echo "คุณแทงเกินวงเงินที่กำหนด<br/>";
+			echo "ไม่อยู่ในช่วงเวลาแทง<br/>";
 			printfooter();
 		}
-		echo "บันทึกข้อมูลเรียบร้อย<br/>";
-		echo '<a href="index.php">บันทึกข้อมูลเพิ่มอีก</a>';
-		echo '</div>';
-		include 'footer.php';
-		exit();
 	}	elseif ($action == 'login') {
         if (check_input($username, $password) == false) {
             //Create log

@@ -45,6 +45,69 @@ if (isset($_REQUEST['mdetail']) && strlen($_REQUEST['mdetail']) == 1) {
     $mdetail = false;
 }
 ?>
+<div id = "annoucement" style="text-align: center; margin-top: 20px;">
+<?php
+	if ($login->check_logged_in($logged_in, $username_s)) {
+		$limit_qry = $login->qry("SELECT * FROM limit_time WHERE limit_id = 1");
+		$limit_fet = mysql_fetch_array($limit_qry);
+		echo 'ช่วงเวลาห้ามแทง : ';
+		if ($login->check_master($username_s, $logged_in)) {
+			echo '	<form name = "limit_time" method="post" enctype="application/x-www-form-urlencoded" action="update_limit.php">
+						<select name = "limit_from">
+						';
+						for ($i = 0; $i <= 23 ; $i++) {
+							if ((int)substr($limit_fet["limit_from"], 0, 2) == $i) {
+								echo '<option value = "'.$i.':00:00" selected>'.$i.':00:00</option>';
+							} else {
+								echo '<option value = "'.$i.':00:00">'.$i.':00:00</option>';
+							}
+						}
+			echo '
+						</select>
+						ถึง
+						<select name = "limit_to">
+						';
+						for ($i = 0; $i <= 23 ; $i++) {
+							if ((int)substr($limit_fet["limit_to"], 0, 2) == $i) {
+								echo '<option value = "'.$i.':00:00" selected>'.$i.':00:00</option>';
+							} else {
+								echo '<option value = "'.$i.':00:00">'.$i.':00:00</option>';
+							}
+						}
+			echo '
+						</select>
+						<input name="submit" value="แก้ไข" type="submit"/>
+					</form>';
+		} else {
+			echo $limit_fet["limit_from"].' ถึง '.$limit_fet["limit_to"];
+		}
+		
+		
+		echo '<br/><br/>';
+
+
+
+		$ann_qry = $login->qry("SELECT * FROM annoucement WHERE annoucement_id = 1");
+		$ann_fet = mysql_fetch_array($ann_qry);
+		echo 'ประกาศเมื่อ '.$ann_fet["timestamp"].' : '.$ann_fet["annoucement_str"].'   ';
+		
+		if ($login->check_master($username_s, $logged_in)) {
+			echo '<button onclick="update_ann();">แก้ไข</button>';
+			
+			echo '	<script language="javascript">
+						function update_ann() {
+							var new_str = prompt("กรุณาใส่ข้อความที่ต้องการประกาศ","'.$ann_fet["annoucement_str"].'");
+							if (new_str != null) {
+								document.location = "update_ann.php?new="+new_str;
+							}
+						}
+					</script>';
+			
+		}
+	}
+	
+?>
+</div>
 <div id="content">
     <ul class="tabs">
         <li><a href="#">ผู้ใช้</a></li>
